@@ -4,13 +4,13 @@
 # $ pip install -r crowdsourcing_requirements.txt
 
 # Python Image Library for processing image answers.
-PIL>=1.1.6
+Pillow
 
 # for image thumbnailing
-sorl-thumbnail==3.2.5
+sorl-thumbnail==11.12.1b
 
 # for ordering inlines
--e git://github.com/jpwatts/django-positions.git#egg=django-positions
+django-positions==0.5.1
 
 # For geocoding addresses and address lookups
 geopy
@@ -20,7 +20,7 @@ geopy
 
 # For Flickr support. Crowdsourcing is fairly graceful if you don't install
 # flickrapi.
-flickrapi
+# flickrapi
 
 # For asynchronously synching Flickr. Sync synchronously by default.
 # carrot>=0.10.3

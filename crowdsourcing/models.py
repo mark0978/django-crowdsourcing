@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-
-import datetime
 import logging
 from math import sin, cos
 from operator import itemgetter
@@ -13,6 +11,7 @@ try:
 except ImportError:
     import json
 
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.cache import cache
@@ -73,7 +72,7 @@ OPTION_TYPE_CHOICES = ChoiceEnum(sorted([('char', 'Text Box'),
 
 class LiveSurveyManager(models.Manager):
     def get_query_set(self):
-        now = datetime.datetime.now()
+        now = timezone.now()
         return super(LiveSurveyManager, self).get_query_set().filter(
             is_published=True,
             starts_at__lte=now).filter(
@@ -116,7 +115,7 @@ class Survey(models.Model):
                     "post-close: Results are public on or after the "
                     "\"ends at\" option documented below. never: Results are "
                     "never public."))
-    starts_at = models.DateTimeField(default=datetime.datetime.now)
+    starts_at = models.DateTimeField(default=timezone.now)
     survey_date = models.DateField(blank=True, null=True, editable=False)
     ends_at = models.DateTimeField(null=True, blank=True)
     is_published = models.BooleanField(default=False)
@@ -171,14 +170,14 @@ class Survey(models.Model):
 
     @property
     def is_open(self):
-        now = datetime.datetime.now()
+        now = timezone.now()
         if self.ends_at:
             return self.starts_at <= now < self.ends_at
         return self.starts_at <= now
 
     @property
     def is_live(self):
-        now = datetime.datetime.now()
+        now = timezone.datetime.now()
         return all([
             self.is_published,
             self.starts_at <= now,
@@ -321,7 +320,7 @@ class Question(models.Model):
         max_length=max([len(key) for key, v in OPTION_TYPE_CHOICES._choices]),
         choices=OPTION_TYPE_CHOICES,
         help_text=_('You must not change this field on a live survey.'))
-    # For NUMERIC_(SELECT|CHOICE) use it as an int unless they use a decimal. 
+    # For NUMERIC_(SELECT|CHOICE) use it as an int unless they use a decimal.
     numeric_is_int = models.BooleanField(default=True, editable=False)
     options = models.TextField(
         blank=True,
@@ -560,7 +559,7 @@ def _extra_from_distance(filter, submission_id_column):
         "%f * cos(latitude / %f) * "
         "cos((longitude - %f) / %f)") % acos_of_args
     # if acos_of >= 1 then the address in the database is practically the
-    # same address we're searching for and acos(acos_of) is mathematically 
+    # same address we're searching for and acos(acos_of) is mathematically
     # impossible so just always include it. If acos_of < 1 then we need to
     # check the distance.
     where = "".join((
@@ -732,7 +731,7 @@ class Submission(models.Model):
     survey = models.ForeignKey(Survey)
     user = models.ForeignKey(User, blank=True, null=True)
     ip_address = models.IPAddressField()
-    submitted_at = models.DateTimeField(default=datetime.datetime.now)
+    submitted_at = models.DateTimeField(default=timezone.now)
     session_key = models.CharField(max_length=40, blank=True, editable=False)
     featured = models.BooleanField(default=False)
 
